@@ -82,9 +82,22 @@ def manage_stocks(stock_list):
 # Add new stock to track
 def add_stock(stock_list):
     clear_screen()
-    print("*** This Module Under Construction ***")
-    _ = input("*** Press Enter to Continue ***")
-
+    option = ""
+    while option != "0":
+        print("Add Stock")
+        _symbol = input("""Enter Stock Symbol:
+                        """).upper()
+        _name = input("""Enter Stock Name:
+                        """).capitalize()
+        _shares = float(input("""Enter Number of Shares:
+                        """))
+        new_stock = Stock(_symbol, _name, _shares)
+        stock_list.append(new_stock)
+        option = input(""""Press Enter to add another stock, or 0 to exit
+                       """)
+        
+        
+        
 # Buy or Sell Shares Menu
 def update_shares(stock_list):
     option = ""
@@ -113,37 +126,164 @@ def update_shares(stock_list):
 # Buy Stocks (add to shares)
 def buy_stock(stock_list):
     clear_screen()
-    print("*** This Module Under Construction ***")
-    _ = input("*** Press Enter to Continue ***")
+    print("----- Buy Stock Menu -----")
+    symb_list = []
+    print("Stock List:", end= " ")
+    for e in stock_list:
+        print(e._symbol, end = " ")
+    symbol = str(input("Enter Stock to buy: ")).upper()
+    shares = float(input("How many shares to buy? "))
+    found = False
+    for e in stock_list:
+        if e._symbol == symbol:
+            found =True
+            e.buy(shares)
+    if found == True:
+        print("Bought " + str(shares) + " shares of " + symbol)
+    else:
+        print("Error: symbol not found!...")
+        input("*** Press Enter to Continue ***")
+    
+        
 
 # Sell Stocks (subtract from shares)
 def sell_stock(stock_list):
     clear_screen()
-    print("*** This Module Under Construction ***")
-    _ = input("*** Press Enter to Continue ***")
+    print("----- Sell Stock Menu -----")
+    symb_list = []
+    print("Stock List:", end= " ")
+    for e in stock_list:
+        print(e._symbol, end = " ")
+    symbol = str(input("Enter Stock to sell: ")).upper()
+    shares = float(input("How many shares to sell? "))
+    found = False
+    for e in stock_list:
+        if e._symbol == symbol:
+            found =True
+            e.sell(shares)
+    if found == True:
+        print("Sold " + str(shares) + " shares of " + symbol)
+    else:
+        print("Error: symbol not found!...")
+        input("*** Press Enter to Continue ***")
 
 # Remove stock and all daily data
 def delete_stock(stock_list):
     clear_screen()
-    print("*** This Module Under Construction ***")
+    print("***Delete A Stock***")
+    print("Stock List: ", end="")
+    for e in stock_list:
+        print(e._symbol + " ", end = "")
+    symbol = str(input("""Enter the stock to delete: 
+                       """)).upper()
+    found = False
+    i = 0
+    for stock in stock_list:
+        if stock._symbol == symbol:
+            found = True
+            stock_list.pop(i)
+        i+=1
+    if found == True:
+        print ("Deleted " + symbol)
+    else:
+        print("Error: Symbol not found")
+        _ = input("*** Press Enter to Continue ***")
     _ = input("*** Press Enter to Continue ***")
 
 # List stocks being tracked
 def list_stocks(stock_list):
     clear_screen()
-    print("*** This Module Under Construction ***")
+    print("List of Stocks")
+    column = ['Symbol', 'Name', '# of Shares', '----------']
+    
+    print(f'{column[0]:20} {column[1]:20} {column[2]:20}')
+    print(f'{column[3]:20} {column[3]:20} {column[3]:20}')
+    for e in stock_list:
+        print(f'{e._symbol:20} {e._name:20} {e._shares:20}')
+        print(f'{column[3]:20} {column[3]:20} {column[3]:20}')
     _ = input("*** Press Enter to Continue ***")
 
 # Add Daily Stock Data
 def add_stock_data(stock_list):
     clear_screen()
-    print("*** This Module Under Construction ***")
-    _ = input("*** Press Enter to Continue ***")
-
+    print("***Add Daily Stock Data***")
+    print("Stock List: ")
+    for e in stock_list:
+        print(e._symbol, end = " ")
+    
+    symbol = str(input("Enter Stock Symbol: ")).upper()
+    found = False
+    for e in stock_list:
+        if e._symbol == symbol:
+            found = True
+            current_stock = e
+    if found == True:
+        data = input("""Enter Transaction Date, Price, and Volume separated by commas """)
+        while data != "":
+            date, price, volume = data.split(",", 3)
+            daily_data = DailyData(datetime.strptime(date,"%m/%d/%y"),float(price),float(volume))
+            current_stock.add_data(daily_data)
+            data = input("Press Enter to exit, or add more comma-separated data (date, price, volume)")
+        print("Data entry complete")
+    else:
+        print("Symbol not Found")
+        print("*** Press Enter to Continue ***")
 # Display Report for All Stocks
 def display_report(stock_data):
     clear_screen()
-    print("*** This Module Under Construction ***")
+    print("*** Generating Stock Report ***")
+    for stock in stock_data:
+        print("Report for: " + stock._symbol + " " + stock._name)
+        print("Shares: " + str(stock._shares))
+        count = 0
+        price_total = 0
+        volume_total = 0
+        lowPrice = 999999.99
+        highPrice= 0
+        lowVolume = 999999999999
+        highVolume = 0
+        startDate = datetime.strptime("12/31/2099","%m/%d/%Y")
+        endDate = datetime.strptime("1/1/1900","%m/%d/%Y")
+        for daily_data in stock.DataList:
+            count += 1
+            price_total = price_total + daily_data.close
+            volume_total = volume_total + daily_data.volume
+            if daily_data.close<lowPrice:
+                lowPrice = daily_data.close
+            if daily_data.close > highPrice:
+                highPrice = daily_data.close
+            if daily_data.volume < lowVolume:
+                lowVolume = daily_data.volume
+            if daily_data.volume > highVolume:
+                highVolume = daily_data.volume
+            if daily_data.date < startDate:
+                startDate = daily_data.date
+                startPrice = daily_data.close
+            if daily_data.date > endDate:
+                endDate = daily_data.date
+                endPrice = daily_data.close
+            priceChange = endPrice - startPrice
+            print(daily_data.date.strftime("%m/%d/%y"), daily_data.close, daily_data.volume)
+        if count > 0:
+            print("Summary ---" + str(startDate) + " to " + str(endDate))
+            print("Low Price: " + str(lowPrice))
+            print("High Price: " + str(highPrice))
+            print("Average Price: " + str(price_total/count))
+            print("Low Volume: " + str(lowVolume))
+            print("High Volume: " + str(highVolume))
+            print("Average Volume: " + str(volume_total/count))
+            print("Starting Price: " + str(startPrice))
+            print("Ending Price: " + str(endPrice))
+            print("Change in Price: " + str(priceChange))
+            print("Profit/Loss: " + str(priceChange * stock.shares))
+        else:
+            print("No daily history")
+            print("""
+                  ----------
+                  
+                  ----------
+                  """)
+    print("Report Complete")
     _ = input("*** Press Enter to Continue ***")
 
 # Display Chart

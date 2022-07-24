@@ -1,6 +1,8 @@
+
+#
 # Summary: This module contains the class definitions that will be used in the stock analysis program
-# Author: 
-# Date: 
+# Author:----Morgan Hanson
+# Date: ---- 7/16/22
 
 from datetime import datetime
 
@@ -12,15 +14,61 @@ class Stock:
         self._name = name
         self._shares = shares
         self.DataList = [] # list of daily stock data
-
     @property
     def name(self):
         return self._name
     @name.setter
     def name(self,name):
         self._name = name
+    @property
+    def symbol(self):
+        return self._property
+    @symbol.setter
+    def symbol(self, symbol):
+        raise RuntimeWarning("Cannot Change Stock Symbol")
+    @property
+    def shares(self):
+        return self._shares
+    @shares.setter
+    def shares(self):
+       raise RuntimeWarning("Cannot Directly Alter Num Shares, use buy() or sell()")
+#--------------------------------------------------------------------------------------------
+    def buy(self, quantity):
+        self._shares = self._shares + quantity
+
+    def sell(self, quantity):
+        self._shares = self._shares - quantity
+    def add_data(self, stock_data):
+        self.DataList.append(stock_data)
+#--------------------------------------------------------------------------------------------
+
     
 # Create DailyData class here.
+class DailyData:
+    def __init__(self, date, close, volume):
+        self._date = date
+        self._close = close
+        self._volume = volume
+    @property
+    def date(self):
+        return self._date
+    @date.setter
+    def date(self, date):
+        self._date = date
+    @property
+    def close(self):
+        return self._close
+    @close.setter
+    def close(self, close):
+        self._close = close
+    @property
+    def volume(self):
+        return self._volume
+    @volume.setter
+    def volume(self, volume):
+        self._volume = volume
+   
+
 
 
 
@@ -97,6 +145,7 @@ def main():
             print("Successful!")
         else:
             print("***ERROR! Sell shares unsuccessful.")
+            print(testStock.shares)
             error_count = error_count+1
             error_list.append("Sell Shares Failure!")
     except:
@@ -129,6 +178,7 @@ def main():
         daily_data_error = True
     if daily_data_error == True:
         print("***ERROR! Creating daily data failed.")
+        
     else:
         print("Successful!")
     
