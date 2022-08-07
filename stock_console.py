@@ -1,12 +1,13 @@
 # Summary: This module contains the user interface and logic for a console-based version of the stock manager program.
-# Author: 
-# Date: 
+# Author: Morgan Hanson
+# Date: 7/23/22
 
 from datetime import datetime
 from stock_class import Stock, DailyData
 from utilities import clear_screen, display_stock_chart
 from os import path
 import stock_data
+from account_class import Traditional, Robo
 
 
 # Main Menu
@@ -20,9 +21,10 @@ def main_menu(stock_list):
         print("3 - Show Report")
         print("4 - Show Chart")
         print("5 - Manage Data (Save, Load, Retrieve)")
+        print("6 - Investor Type")
         print("0 - Exit Program")
         option = input("Enter Menu Option: ")
-        while option not in ["1","2","3","4","5","0"]:
+        while option not in ["1","2","3","4","5", "6", "0"]:
             clear_screen()
             print("*** Invalid Option - Try again ***")
             print("Stock Analyzer ---")
@@ -43,6 +45,8 @@ def main_menu(stock_list):
             display_chart(stock_list)
         elif option == "5":
             manage_data(stock_list)
+        elif option == "6":
+            investment_type(stock_list)
         else:
             clear_screen()
             print("Goodbye")
@@ -220,7 +224,7 @@ def add_stock_data(stock_list):
     if found == True:
         data = input("""Enter Transaction Date, Price, and Volume separated by commas """)
         while data != "":
-            date, price, volume = data.split(",", 3)
+            date, price, volume = data.split(",")
             daily_data = DailyData(datetime.strptime(date,"%m/%d/%y"),float(price),float(volume))
             current_stock.add_data(daily_data)
             data = input("Press Enter to exit, or add more comma-separated data (date, price, volume)")
@@ -229,6 +233,42 @@ def add_stock_data(stock_list):
         print("Symbol not Found")
         print("*** Press Enter to Continue ***")
 # Display Report for All Stocks
+def investment_type(stock_list):
+    print("Investment Account ---")
+    balance = float(input("What is your initial balance: "))
+    number = input("What is your account number: ")
+    acct= input("Do you want a Traditional (t) or Robo (r) account: ")
+    if acct.lower() == "r":
+        years = float(input("How many years until retirement: "))
+        robo_acct = Robo(balance, number, years)
+        print("Your investment return is ",robo_acct.investment_return())
+        print("\n\n")
+    elif acct.lower() == "t":
+        trad_acct = Traditional(balance, number)
+        temp_list=[]
+        print("Choose stocks from the list below: ")
+        while True:
+            print("Stock List: [",end="")
+            for stock in stock_list:
+                print(stock._symbol," ",end="")
+            print("]")
+            symbol = input("Which stock do you want to purchase, 0 to quit: ").upper()
+            if symbol =="0":
+                break
+            shares = float(input("How many shares do you want to buy?: "))
+            found = False
+            for stock in stock_list:
+              if stock._symbol == symbol:
+                  found = True
+                  current_stock = stock
+            if found == True:
+                current_stock._shares += shares 
+                temp_list.append(current_stock)
+                print("Bought ",shares,"of",symbol)
+            else:
+                print("Symbol Not Found ***")
+        trad_acct.add_stock(temp_list)
+
 def display_report(stock_data):
     clear_screen()
     print("*** Generating Stock Report ***")
