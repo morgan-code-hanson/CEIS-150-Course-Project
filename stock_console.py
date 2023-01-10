@@ -8,6 +8,10 @@ from utilities import clear_screen, display_stock_chart
 from os import path
 import stock_data
 from account_class import Traditional, Robo
+import matplotlib.pyplot as plt
+import csv
+import pandas as pd
+import numpy as np
 
 
 # Main Menu
@@ -272,10 +276,10 @@ def investment_type(stock_list):
 def display_report(stock_data):
     clear_screen()
     print("*** Generating Stock Report ***")
+    count = 0
     for stock in stock_data:
         print("Report for: " + stock._symbol + " " + stock._name)
         print("Shares: " + str(stock._shares))
-        count = 0
         price_total = 0
         volume_total = 0
         lowPrice = 999999.99
@@ -316,6 +320,7 @@ def display_report(stock_data):
             print("Ending Price: " + str(endPrice))
             print("Change in Price: " + str(priceChange))
             print("Profit/Loss: " + str(priceChange * stock.shares))
+            _ = input("*** Press Enter to Continue ***")
         else:
             print("No daily history")
             print("""
@@ -329,8 +334,22 @@ def display_report(stock_data):
 # Display Chart
 def display_chart(stock_list):
     clear_screen()
-    print("*** This Module Under Construction ***")
-    _ = input("*** Press Enter to Continue ***")
+    print("Stock List: [ ", end="")
+    for stock in stock_list:
+        print(stock._symbol + " ", end = "")
+        symbol = input("Enter Stock Symbol: ").upper()
+        found = False
+        for stock in stock_list:
+            if stock._symbol == symbol:
+                found = True
+                current_stock = stock
+        if found == True:
+            display_stock_chart(stock_list, current_stock._symbol)
+        else:
+            print("Error: symbol not found")
+        input("Press Enter to continue")
+    print(" ]")
+    
 
 # Manage Data Menu
 def manage_data(stock_list):
@@ -344,13 +363,13 @@ def manage_data(stock_list):
         print("4 - Import from CSV File")
         print("0 - Exit Manage Data")
         option = input("Enter Menu Option: ")
-        while option not in ["1","2","3","4","5","0"]:
+        while option not in ["1","2","32","4","5","0"]:
             clear_screen()
             print("*** Invalid Option - Try again ***")
             print("1 - Save Data to Database")
             print("2 - Load Data from Database")
             print("3 - Retrieve Data from Web")
-            print("4 - Import from CSV File")
+            print("4 - Import from 6 File")
             print("0 - Exit Manage Data")
             option = input("Enter Menu Option: ")
         if option == "1":
@@ -378,10 +397,25 @@ def retrieve_from_web(stock_list):
 
 # Import stock price and volume history from Yahoo! Finance using CSV Import
 def import_csv(stock_list):
-    clear_screen()
-    print("*** This Module Under Construction ***")
-    _ = input("*** Press Enter to Continue ***")
-
+    print("*Import Stock Data from CSV*")
+    for stock in stock_list:
+        print (stock._symbol , end = " ")
+    print ("]")
+    symbol = str(input("Enter stock symbol:  ")).upper()
+    for stock in stock_list:
+        if stock._symbol == symbol:
+            filename = str(symbol) + ".csv"
+       
+            pdreader = pd.read_csv(filename, delimiter=',',converters= {'Date': pd.to_datetime})
+            for y in range(0,251):
+                date,price,volume = (pdreader["Date"][y], pdreader["Close"][y], pdreader["Volume"][y])
+                daily_data = DailyData(date,float(price),float(volume))
+                stock.add_data(daily_data)
+                
+    display_report(stock_list)
+                
+        
+        
 # Begin program
 def main():
     #check for database, create if not exists

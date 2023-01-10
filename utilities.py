@@ -1,6 +1,6 @@
 # Summary: This module contains helper functions used by the stock manager program.
-# Author: 
-# Date: 
+# Author: Morgan Hanson
+# Date: 8/7/22
 
 import matplotlib.pyplot as plt
 
@@ -25,6 +25,23 @@ def sortDailyData(stock_list):
 
 # Function to create stock chart
 def display_stock_chart(stock_list,symbol):
-    clear_screen()
-    print("*** This Module Under Construction ***")
-    _ = input("*** Press Enter to Continue ***")
+    date = []
+    price= []
+    volume = []
+    company = ""
+    for stock in stock_list:
+        if stock._symbol == symbol:
+            company = stock.name
+            for dailyData in stock.DataList:
+                date.append(dailyData.date)
+                price.append(dailyData.close)
+                volume.append(dailyData.volume)
+    fig, ax = plt.subplots()
+    plt.plot(date,price)
+    plt.xlabel('Date')
+    plt.ylabel('Price')
+    plt.title(company)
+    fig.autofmt_xdate()
+    plt.show()
+                
+   
